@@ -2,11 +2,11 @@ import string
 import torch
 import torch.nn as nn
 
-from transformers import BertPreTrainedModel, BertModel, BertTokenizerFast
+from transformers import AlbertPreTrainedModel, AlbertModel, AlbertTokenizerFast
 from colbert.parameters import DEVICE
 
 
-class ColBERT(BertPreTrainedModel):
+class ColBERT(AlbertPreTrainedModel):
     def __init__(self, config, query_maxlen, doc_maxlen, mask_punctuation, dim=128, similarity_metric='cosine', tokenizer_path='bert-base-uncased'):
 
         super(ColBERT, self).__init__(config)
@@ -20,11 +20,11 @@ class ColBERT(BertPreTrainedModel):
         self.skiplist = {}
 
         if self.mask_punctuation:
-            self.tokenizer = BertTokenizerFast.from_pretrained(tokenizer_path)
+            self.tokenizer = AlbertTokenizerFast.from_pretrained(tokenizer_path)
             self.skiplist = {w: True
                              for symbol in string.punctuation
                              for w in [symbol, self.tokenizer.encode(symbol, add_special_tokens=False)[0]]}
-        self.bert = BertModel(config)
+        self.bert = AlbertModel(config)
         self.linear = nn.Linear(config.hidden_size, dim, bias=False)
 
         self.init_weights()
