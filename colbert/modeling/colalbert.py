@@ -6,7 +6,7 @@ from transformers import AlbertPreTrainedModel, AlbertModel, AlbertTokenizerFast
 from colbert.parameters import DEVICE
 
 
-class ColBERT(AlbertPreTrainedModel):
+class ColALBERT(AlbertPreTrainedModel):
     def __init__(self, config, query_maxlen, doc_maxlen, mask_punctuation, dim=128, similarity_metric='cosine', tokenizer_path='bert-base-uncased'):
 
         super(ColBERT, self).__init__(config)
