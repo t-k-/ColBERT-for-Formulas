@@ -1,0 +1,16 @@
+name: colbert-v0.2
+channels:
+  - pytorch
+  - defaults
+dependencies:
+  - python=3.7
+  - pip=20.2.2
+  - cudatoolkit=10.2
+  - faiss-gpu=1.6.3
+  - pip:
+    - mlflow
+    - tensorboard
+    - tqdm
+    - transformers==3.0.2
+    - ujson
+    - pytorch-master-nightly-py3-linux-ppc64le-gpu
