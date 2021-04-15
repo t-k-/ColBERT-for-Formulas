@@ -42,15 +42,16 @@ def train(args):
         torch.distributed.barrier()
     model = args.model
 
+
     if model == 'bert':
-        colbert = ColBERT.from_pretrained('bert-base-uncased',
+        colbert = ColBERT.from_pretrained(args.model_path,
                                       query_maxlen=args.query_maxlen,
                                       doc_maxlen=args.doc_maxlen,
                                       dim=args.dim,
                                       similarity_metric=args.similarity,
                                       mask_punctuation=args.mask_punctuation)
     elif model == 'albert':
-        colbert = ColALBERT.from_pretrained('bert-base-uncased',
+        colbert = ColALBERT.from_pretrained(args.model_path,
                                       query_maxlen=args.query_maxlen,
                                       doc_maxlen=args.doc_maxlen,
                                       dim=args.dim,

@@ -26,7 +26,8 @@ class Arguments():
         self.add_argument('--dim', dest='dim', default=128, type=int)
         self.add_argument('--query_maxlen', dest='query_maxlen', default=32, type=int)
         self.add_argument('--doc_maxlen', dest='doc_maxlen', default=180, type=int)
-
+        self.add_argument('--model', dest='model', default='bert', type=str)
+        self.add_argument('--model_path', dest='model_path', default='bert-base-uncased', type=str)
         # Filtering-related Arguments
         self.add_argument('--mask-punctuation', dest='mask_punctuation', default=False, action='store_true')
 

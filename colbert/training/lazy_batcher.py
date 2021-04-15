@@ -12,8 +12,8 @@ class LazyBatcher():
     def __init__(self, args, rank=0, nranks=1):
         self.bsize, self.accumsteps = args.bsize, args.accumsteps
 
-        self.query_tokenizer = QueryTokenizer(args.query_maxlen)
-        self.doc_tokenizer = DocTokenizer(args.doc_maxlen)
+        self.query_tokenizer = QueryTokenizer(args.query_maxlen, tokenizer_path=args.model_path)
+        self.doc_tokenizer = DocTokenizer(args.doc_maxlen, tokenizer_path=args.model_path)
         self.tensorize_triples = partial(tensorize_triples, self.query_tokenizer, self.doc_tokenizer)
         self.position = 0
 
