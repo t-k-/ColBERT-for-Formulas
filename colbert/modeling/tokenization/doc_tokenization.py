@@ -1,7 +1,7 @@
 import torch
 
 from transformers import BertTokenizerFast
-from transformers import AlbertTokenizerFast
+from transformers import AlbertTokenizer
 from colbert.modeling.tokenization.utils import _split_into_batches, _sort_by_length
 
 
@@ -10,7 +10,7 @@ class DocTokenizer():
         if model == 'bert':
             self.tok = BertTokenizerFast.from_pretrained(tokenizer_path)
         elif model == 'albert':
-            self.tok = AlbertTokenizerFast.from_pretrained(tokenizer_path)
+            self.tok = AlbertTokenizer.from_pretrained(tokenizer_path)
         self.doc_maxlen = doc_maxlen
 
         self.D_marker_token, self.D_marker_token_id = '[D]', self.tok.get_vocab()['[unused1]']
