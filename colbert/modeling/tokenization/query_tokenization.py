@@ -1,7 +1,7 @@
 import torch
 
 from transformers import BertTokenizerFast
-from transformers import AlbertTokenizerFast
+from transformers import AlbertTokenizer
 from colbert.modeling.tokenization.utils import _split_into_batches
 
 
@@ -10,7 +10,7 @@ class QueryTokenizer():
         if model == 'bert':
             self.tok = BertTokenizerFast.from_pretrained(tokenizer_path)
         elif model == 'albert':
-            self.tok = AlbertTokenizerFast.from_pretrained(tokenizer_path)
+            self.tok = AlbertTokenizer.from_pretrained(tokenizer_path)
         self.query_maxlen = query_maxlen
 
         self.Q_marker_token, self.Q_marker_token_id = '[Q]', self.tok.get_vocab()['[unused0]']

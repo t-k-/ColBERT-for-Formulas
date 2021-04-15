@@ -2,14 +2,14 @@ import string
 import torch
 import torch.nn as nn
 
-from transformers import AlbertPreTrainedModel, AlbertModel, AlbertTokenizerFast
+from transformers import AlbertPreTrainedModel, AlbertModel, AlbertTokenizer
 from colbert.parameters import DEVICE
 
 
 class ColALBERT(AlbertPreTrainedModel):
-    def __init__(self, config, query_maxlen, doc_maxlen, mask_punctuation, dim=128, similarity_metric='cosine', tokenizer_path='bert-base-uncased'):
+    def __init__(self, config, query_maxlen, doc_maxlen, mask_punctuation, dim=128, similarity_metric='cosine', tokenizer_path='albert-base-v2'):
 
-        super(ColBERT, self).__init__(config)
+        super(ColALBERT, self).__init__(config)
 
         self.query_maxlen = query_maxlen
         self.doc_maxlen = doc_maxlen
@@ -20,7 +20,7 @@ class ColALBERT(AlbertPreTrainedModel):
         self.skiplist = {}
 
         if self.mask_punctuation:
-            self.tokenizer = AlbertTokenizerFast.from_pretrained(tokenizer_path)
+            self.tokenizer = AlbertTokenizer.from_pretrained(tokenizer_path)
             self.skiplist = {w: True
                              for symbol in string.punctuation
                              for w in [symbol, self.tokenizer.encode(symbol, add_special_tokens=False)[0]]}
