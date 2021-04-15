@@ -1,14 +1,15 @@
 import os
 import random
-import torch
 import copy
 
+from comet_ml import Experiment
+from colbert.training.training import train
 import colbert.utils.distributed as distributed
 
 from colbert.utils.parser import Arguments
 from colbert.utils.runs import Run
-from colbert.training.training import train
 
+from colbert import my_keys
 
 def main():
     parser = Arguments(description='Training ColBERT with <query, positive passage, negative passage> triples.')
@@ -26,6 +27,12 @@ def main():
 
     args.lazy = args.collection is not None
 
+    experiment = Experiment(
+    api_key=my_keys.api_key,
+    project_name='ColBERT_Training',
+    workspace=my_keys.workspace)
+
+    experiment.log_parameters(args)
     with Run.context(consider_failed_if_interrupted=False):
         train(args)
 
