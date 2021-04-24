@@ -9,15 +9,17 @@ class DocTokenizer():
     def __init__(self, doc_maxlen, model='bert',tokenizer_path='bert-base-uncased'):
         if model == 'bert':
             self.tok = BertTokenizerFast.from_pretrained(tokenizer_path)
+            self.D_marker_token, self.D_marker_token_id = '[D]', self.tok.get_vocab()['[unused1]']
         elif model == 'albert':
             self.tok = AlbertTokenizer.from_pretrained(tokenizer_path)
+            self.D_marker_token, self.D_marker_token_id = '[D]', self.tok.get_vocab()['[SEP]']
         self.doc_maxlen = doc_maxlen
 
-        self.D_marker_token, self.D_marker_token_id = '[D]', self.tok.get_vocab()['[unused1]']
         self.cls_token, self.cls_token_id = self.tok.cls_token, self.tok.cls_token_id
         self.sep_token, self.sep_token_id = self.tok.sep_token, self.tok.sep_token_id
 
-        assert self.D_marker_token_id == 2
+        # assert self.D_marker_token_id == 2
+        print(self.D_marker_token_id, 'self.D_marker_token_id')
 
     def tokenize(self, batch_text, add_special_tokens=False):
         assert type(batch_text) in [list, tuple], (type(batch_text))
