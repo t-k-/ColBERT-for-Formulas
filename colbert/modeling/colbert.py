@@ -7,7 +7,7 @@ from colbert.parameters import DEVICE
 
 
 class ColBERT(BertPreTrainedModel):
-    def __init__(self, config, query_maxlen, doc_maxlen, mask_punctuation, dim=128, similarity_metric='cosine', tokenizer_path='bert-base-uncased'):
+    def __init__(self, config, query_maxlen, doc_maxlen, mask_punctuation, dim=128, similarity_metric='cosine', tokenizer_path='bert-base-uncased', separate_models=False):
 
         super(ColBERT, self).__init__(config)
 
@@ -24,7 +24,12 @@ class ColBERT(BertPreTrainedModel):
             self.skiplist = {w: True
                              for symbol in string.punctuation
                              for w in [symbol, self.tokenizer.encode(symbol, add_special_tokens=False)[0]]}
-        self.bert = BertModel(config)
+        self.separate_models = separate_models
+        if self.separate_models:
+            self.q_bert = BertModel(config)
+            self.d_bert = BertModel(config)
+        else:
+            self.bert = BertModel(config)
         self.linear = nn.Linear(config.hidden_size, dim, bias=False)
 
         self.init_weights()
@@ -34,14 +39,20 @@ class ColBERT(BertPreTrainedModel):
 
     def query(self, input_ids, attention_mask):
         input_ids, attention_mask = input_ids.to(DEVICE), attention_mask.to(DEVICE)
-        Q = self.bert(input_ids, attention_mask=attention_mask)[0]
+        if self.separate_models:
+            Q = self.q_bert(input_ids, attention_mask=attention_mask)[0]
+        else:
+            Q = self.bert(input_ids, attention_mask=attention_mask)[0]
         Q = self.linear(Q)
 
         return torch.nn.functional.normalize(Q, p=2, dim=2)
 
     def doc(self, input_ids, attention_mask, keep_dims=True):
         input_ids, attention_mask = input_ids.to(DEVICE), attention_mask.to(DEVICE)
-        D = self.bert(input_ids, attention_mask=attention_mask)[0]
+        if self.separate_models:
+            D = self.d_bert(input_ids, attention_mask=attention_mask)[0]
+        else:
+            D = self.bert(input_ids, attention_mask=attention_mask)[0]
         D = self.linear(D)
 
         mask = torch.tensor(self.mask(input_ids), device=DEVICE).unsqueeze(2).float()

@@ -49,7 +49,8 @@ def train(args):
                                       doc_maxlen=args.doc_maxlen,
                                       dim=args.dim,
                                       similarity_metric=args.similarity,
-                                      mask_punctuation=args.mask_punctuation)
+                                      mask_punctuation=args.mask_punctuation,
+                                      separate_models=args.separate_models)
     elif model == 'albert':
         colbert = ColALBERT.from_pretrained(args.model_path,
                                       query_maxlen=args.query_maxlen,

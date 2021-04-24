@@ -28,6 +28,7 @@ class Arguments():
         self.add_argument('--doc_maxlen', dest='doc_maxlen', default=180, type=int)
         self.add_argument('--model', dest='model', default='bert', type=str)
         self.add_argument('--model_path', dest='model_path', default='bert-base-uncased', type=str)
+        self.add_argument('--separate_models', dest='separate_models', default=False, action='store_true')
         # Filtering-related Arguments
         self.add_argument('--mask-punctuation', dest='mask_punctuation', default=False, action='store_true')
 
