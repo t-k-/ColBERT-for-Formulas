@@ -34,8 +34,10 @@ class EagerBatcher():
             if (self.position + line_idx) % self.nranks != self.rank:
                 continue
 
-            query, pos, neg = line.strip().split('\t')
-
+            try:
+                query, pos, neg = line.strip().split('\t')
+            except:
+                print(line, line_idx)
             queries.append(query)
             positives.append(pos)
             negatives.append(neg)
