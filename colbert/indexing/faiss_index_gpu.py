@@ -133,4 +133,7 @@ class FaissIndexGPU():
             index_src_gpu.reserveMemory(self.max_add)
 
         if self.ngpu > 1:
-            self.gpu_index.sync_with_shard_indexes()
+            try:
+                self.gpu_index.sync_with_shard_indexes()
+            except:
+                self.gpu_index.syncWithSubIndexes()
