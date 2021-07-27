@@ -31,10 +31,10 @@ class ColBERT(BertPreTrainedModel):
         input_ids, attention_mask = zip(*[self._encode(x, self.query_maxlen) for x in queries])
         input_ids, attention_mask = self._tensorize(input_ids), self._tensorize(attention_mask)
 
-        Q = self.bert(input_ids, attention_mask=attention_mask)[0]
-        Q = self.linear(Q)
-
-        return torch.nn.functional.normalize(Q, p=2, dim=2)
+        logits = self.bert(input_ids, attention_mask=attention_mask)[0]
+        # BERT output logits: [8, 32, 768]
+        Q = self.linear(logits) # [8, 32, 128] = [B, maxLen, outDim]
+        return torch.nn.functional.normalize(Q, dim=2) # L2 normalization
 
     def doc(self, docs, return_mask=False):
         docs = [["[unused1]"] + self._tokenize(d)[:self.doc_maxlen-3] for d in docs]
@@ -46,13 +46,12 @@ class ColBERT(BertPreTrainedModel):
         input_ids, attention_mask = self._tensorize(input_ids), self._tensorize(attention_mask)
 
         D = self.bert(input_ids, attention_mask=attention_mask)[0]
-        D = self.linear(D)
+        D = self.linear(D) # [8, 107, 128]
 
         # [CLS] .. d ... [SEP] [PAD] ... [PAD]
-        mask = [[1] + [x not in self.skiplist for x in d] + [1] + [0] * (d_max_length - length)
-                for d, length in zip(docs, lengths)]
-
-        D = D * torch.tensor(mask, device=DEVICE, dtype=torch.float32).unsqueeze(2)
+        mask = [[1] + [x not in self.skiplist for x in d] + [1] + [0] * (d_max_length - length) for d, length in zip(docs, lengths)]
+        mask = torch.tensor(mask, device=DEVICE, dtype=torch.float32).unsqueeze(2) # [8, 128] -- unsqueeze --> [8, 128, 0] (unsqueezed dim is all ones)
+        D = D * mask
         D = torch.nn.functional.normalize(D, p=2, dim=2)
 
         return (D, mask) if return_mask else D
@@ -60,7 +59,7 @@ class ColBERT(BertPreTrainedModel):
     def score(self, Q, D):
         if self.similarity_metric == 'cosine':
             return (Q @ D.permute(0, 2, 1)).max(2).values.sum(1)
-        
+
         assert self.similarity_metric == 'l2'
         return (-1.0 * ((Q.unsqueeze(2) - D.unsqueeze(1))**2).sum(-1)).max(-1).values.sum(-1)
 
@@ -71,11 +70,18 @@ class ColBERT(BertPreTrainedModel):
         return self.tokenizer.tokenize(text)
 
     def _encode(self, x, max_length):
-        input_ids = self.tokenizer.encode(x, add_special_tokens=True, max_length=max_length)
+        input_ids = self.tokenizer.encode(x,
+            add_special_tokens=True, # because we added [unused0]
+            max_length=max_length
+        )
+
+        # for '[UNK] [PAD] [MASK]' where [UNK] means unknown token,
+        # it starts with [CLS], followed by [SEP] automatically:
+        # tokenizer(tokens) -> [101, 100, 0, 103, 102]
 
         padding_length = max_length - len(input_ids)
         attention_mask = [1] * len(input_ids) + [0] * padding_length
-        input_ids = input_ids + [103] * padding_length
+        input_ids = input_ids + [103] * padding_length # 103 is MASK
 
         return input_ids, attention_mask
 
